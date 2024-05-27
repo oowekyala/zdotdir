@@ -12,9 +12,10 @@ alias g=git
 alias vi=vim
 
 # more ways to ls
-alias ll='ls -lh'
-alias la='ls -lAh'
 alias ldot='ls -ld .*'
+alias lla='ls -lah'
+alias lia='ls -liah'
+alias lsl='ls -lh'
 
 # fix common typos
 alias quit='exit'
@@ -36,6 +37,19 @@ alias urlencode='python3 -c "import sys, urllib.parse as ul; \
 
 # misc
 alias please=sudo
+alias fucking=sudo
 alias zshrc='${EDITOR:-vim} "${ZDOTDIR:-$HOME}"/.zshrc'
 alias zbench='for i in {1..10}; do /usr/bin/time zsh -lic exit; done'
 alias zdot='cd ${ZDOTDIR:-~}'
+alias duh='du -h'
+alias hx=helix
+alias vim=helix
+alias vernicht='kill -9'
+
+
+# git
+alias gsta='git status'
+alias gadd='git add'
+alias gcam='git commit -am'
+alias gcim="git ci -m"
+alias gamendall='git commit -a --amend --no-edit'
