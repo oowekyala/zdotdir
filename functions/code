@@ -1,0 +1,5 @@
+#!/bin/zsh
+
+function code() {
+   command codium --enable-features=UseOzonePlatform --ozone-platform=wayland
+}

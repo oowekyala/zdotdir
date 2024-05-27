@@ -55,6 +55,7 @@ mattmc3/zman
 agkozak/zsh-z
 # path manipulation functions (peth)
 sha1n/path-ethic
+ael-code/zsh-colored-man-pages
 
 ### Local Plugins
 #
