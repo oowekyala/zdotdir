@@ -1,0 +1,8 @@
+#!/bin/zsh
+##? fuck - evaluate the alias for fuck lazily because it hogs down zsh startup
+       
+
+#fuck(){
+eval $(thefuck --alias)
+fuck "$@"
+#}
