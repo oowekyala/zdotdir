@@ -34,6 +34,7 @@ ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh"
 zstyle ':zsh-utils:plugins:history' use-xdg-basedirs 'yes'
 zstyle ':antidote:bundle:*' zcompile 'yes'
 zstyle ':antidote:static' zcompile 'yes'
+zstyle ':omz:plugins:ssh-agent' lazy 'yes'
  
 #### NOW LOAD ANTIDOTE
 
@@ -44,3 +45,5 @@ antidote load
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && zsh-defer source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+export GPG_TTY=$(tty)
