@@ -38,7 +38,7 @@ alias urlencode='python3 -c "import sys, urllib.parse as ul; \
 # misc
 alias please=sudo
 alias fucking=sudo
-alias zshrc='${EDITOR:-vim} "${ZDOTDIR:-$HOME}"/.zshrc'
+alias zshrc='${EDITOR:-vi} "${ZDOTDIR:-$HOME}"/.zshrc'
 alias zbench='for i in {1..10}; do /usr/bin/time zsh -lic exit; done'
 alias zdot='cd ${ZDOTDIR:-~}'
 alias duh='du -h'
