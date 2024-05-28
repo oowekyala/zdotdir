@@ -235,6 +235,7 @@ gradle/gradle-completion kind:defer
 
 # Override aliases with mine
 $ZDOTDIR/.aliases
+$ZDOTDIR/custom_paths.zsh
 
 # These popular core plugins should be loaded at the end
 zsh-users/zsh-autosuggestions

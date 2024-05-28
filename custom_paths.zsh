@@ -1,0 +1,3 @@
+
+path+=("$HOME/.cargo/bin")
+

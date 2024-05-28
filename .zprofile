@@ -15,7 +15,7 @@ fi
 # Editors
 #
 
-export EDITOR="${EDITOR:-helix}"
+export EDITOR="helix"
 export VISUAL="${VISUAL:-helix}"
 export PAGER="${PAGER:-less}"
 

@@ -44,6 +44,7 @@ zstyle ':omz:plugins:ssh-agent' lifetime '8h'
 antidote load
 
 # Finally
+export EDITOR="${EDITOR:-helix}"
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
