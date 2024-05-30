@@ -5,7 +5,7 @@
 .zsh_sessions/
 .zcompdump*
 .zsh_history
-.zsh_plugins.zsh
+zsh_plugins.zsh
 *.bak
 *.local
 *.local.zsh

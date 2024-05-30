@@ -142,7 +142,11 @@ romkatv/zsh-bench kind:path
 #   ohmyzsh/ohmyzsh path:lib/clipboard.zsh
 #
 ####
+# this provide the clipcopy and clippaste functions
 ohmyzsh/ohmyzsh path:lib/clipboard.zsh
+# this is to get vim mode and arrow up down history search
+ohmyzsh/ohmyzsh path:lib/key-bindings.zsh
+
 ohmyzsh/ohmyzsh path:plugins/copybuffer
 ohmyzsh/ohmyzsh path:plugins/copyfile
 ohmyzsh/ohmyzsh path:plugins/copypath
@@ -240,4 +244,4 @@ $ZDOTDIR/custom/paths.zsh
 
 # These popular core plugins should be loaded at the end
 zsh-users/zsh-autosuggestions
-ohmyzsh/ohmyzsh path:plugins/history-substring-search
+#ohmyzsh/ohmyzsh path:plugins/history-substring-search

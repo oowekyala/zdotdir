@@ -12,7 +12,7 @@ fpath=($ZFUNCDIR $fpath)
 autoload -Uz $fpath[1]/*(.:t)
 
 # Source zstyles you might use with antidote.
-[[ -e ${ZDOTDIR:-~}/.zstyles ]] && source ${ZDOTDIR:-~}/.zstyles
+[[ -e ${ZDOTDIR:-~}/zstyles ]] && source ${ZDOTDIR:-~}/zstyles
 
 # Clone antidote if necessary.
 [[ -d ${ZDOTDIR:-~}/.antidote ]] ||
@@ -20,11 +20,6 @@ autoload -Uz $fpath[1]/*(.:t)
 
 # Create an amazing Zsh config using antidote plugins.
 source ${ZDOTDIR:-~}/.antidote/antidote.zsh
-
-# Set the root name of the plugins files (.txt and .zsh) antidote will use.
-zsh_plugins=${ZDOTDIR:-~}/.zsh_plugins
-
-#### MORE CONFIGURATION
 
 # set omz variables
 ZSH=$(antidote path ohmyzsh/ohmyzsh)

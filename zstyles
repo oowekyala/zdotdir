@@ -9,6 +9,7 @@
 
 
 zstyle ':zsh-utils:plugins:history' use-xdg-basedirs 'yes'
+zstyle ':antidote:bundle' file ${ZDOTDIR:-~}/zsh_plugins.txt
 
 zstyle ':antidote:bundle:*' zcompile 'yes'
 zstyle ':antidote:bundle' use-friendly-names 'yes'
