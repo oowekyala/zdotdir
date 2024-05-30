@@ -234,7 +234,7 @@ gradle/gradle-completion kind:defer
 ###
 
 # Override aliases with mine
-$ZDOTDIR/.aliases
+$ZDOTDIR/aliases
 $ZDOTDIR/custom/paths.zsh
 
 
