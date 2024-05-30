@@ -31,13 +31,6 @@ ZSH=$(antidote path ohmyzsh/ohmyzsh)
 ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh"
 [[ -d $ZSH_CACHE_DIR ]] || mkdir -p $ZSH_CACHE_DIR
 
-zstyle ':zsh-utils:plugins:history' use-xdg-basedirs 'yes'
-zstyle ':antidote:bundle:*' zcompile 'yes'
-zstyle ':antidote:static' zcompile 'yes'
-# Lazy loading requires variable AddKeysToAgent in ~/.ssh/config
-# to have identities added only on first request
-zstyle ':omz:plugins:ssh-agent' lazy 'yes'
-zstyle ':omz:plugins:ssh-agent' lifetime '8h'
  
 #### NOW LOAD ANTIDOTE
 

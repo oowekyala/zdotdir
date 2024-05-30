@@ -63,7 +63,7 @@ ael-code/zsh-colored-man-pages
 # host your own custom plugins.
 #
 ###
-#$ZDOTDIR/custom/plugins/example
+$ZDOTDIR/completions/setup.zsh
 
 ### Local Plugins with Variables
 #
@@ -235,7 +235,8 @@ gradle/gradle-completion kind:defer
 
 # Override aliases with mine
 $ZDOTDIR/.aliases
-$ZDOTDIR/custom_paths.zsh
+$ZDOTDIR/custom/paths.zsh
+
 
 # These popular core plugins should be loaded at the end
 zsh-users/zsh-autosuggestions
