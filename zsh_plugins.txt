@@ -144,8 +144,6 @@ romkatv/zsh-bench kind:path
 ####
 # this provide the clipcopy and clippaste functions
 ohmyzsh/ohmyzsh path:lib/clipboard.zsh
-# this is to get vim mode and arrow up down history search
-ohmyzsh/ohmyzsh path:lib/key-bindings.zsh
 
 ohmyzsh/ohmyzsh path:plugins/copybuffer
 ohmyzsh/ohmyzsh path:plugins/copyfile
@@ -210,7 +208,11 @@ ohmyzsh/ohmyzsh path:plugins/gpg-agent
 ###
 belak/zsh-utils path:history
 belak/zsh-utils path:utility
+# This gives us colored commands and arguments 
 belak/zsh-utils path:editor
+# This is to get arrow up down history search
+# Put it here because it overwrites belak editor plugin bindings
+ohmyzsh/ohmyzsh path:lib/key-bindings.zsh
 
 ### Deferred Plugins
 #
