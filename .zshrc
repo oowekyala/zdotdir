@@ -33,6 +33,7 @@ antidote load
 
 # Finally
 export EDITOR="${EDITOR:-helix}"
+export GPG_TTY=$(tty)
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
