@@ -47,6 +47,3 @@ path=(
   /usr/local/{,s}bin(N)
   $path
 )
-
-# Start SSH agent on first login
-eval $(ssh-agent)
