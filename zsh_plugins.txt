@@ -64,6 +64,7 @@ ael-code/zsh-colored-man-pages
 #
 ###
 $ZDOTDIR/completions/setup.zsh
+$ZDOTDIR/custom/plugins/ocaml
 
 ### Local Plugins with Variables
 #
@@ -158,6 +159,7 @@ ohmyzsh/ohmyzsh path:plugins/mvn
 ohmyzsh/ohmyzsh path:plugins/rust
 ohmyzsh/ohmyzsh path:plugins/git
 ohmyzsh/ohmyzsh path:plugins/ssh-agent
+ohmyzsh/ohmyzsh path:plugins/pass kind:fpath
 
 ### Framework: Prezto
 #

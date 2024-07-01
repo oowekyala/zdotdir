@@ -16,6 +16,7 @@ alias ldot='ls -ld .*'
 alias lla='ls -lah'
 alias lia='ls -liah'
 alias lsl='ls -lh'
+alias ll='ls -lh'
 
 # fix common typos
 alias quit='exit'

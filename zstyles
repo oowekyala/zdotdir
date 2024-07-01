@@ -17,5 +17,5 @@ zstyle ':antidote:static' zcompile 'yes'
 
 # Lazy loading requires variable AddKeysToAgent in ~/.ssh/config
 # to have identities added only on first request
-zstyle ':omz:plugins:ssh-agent' lazy 'yes'
-zstyle ':omz:plugins:ssh-agent' lifetime '8h'
+zstyle ':omz:plugins:ssh-agent' lazy 'no'
+#zstyle ':omz:plugins:ssh-agent' lifetime '12h'

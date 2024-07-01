@@ -22,7 +22,9 @@ autoload -Uz $fpath[1]/*(.:t)
 source ${ZDOTDIR:-~}/.antidote/antidote.zsh
 
 # set omz variables
-ZSH=$(antidote path ohmyzsh/ohmyzsh)
+# This here is inlined for a small startup time improvement
+#ZSH=$(antidote path ohmyzsh/ohmyzsh)
+ZSH="$HOME"/.cache/antidote/ohmyzsh/ohmyzsh
 ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh"
 [[ -d $ZSH_CACHE_DIR ]] || mkdir -p $ZSH_CACHE_DIR
 
