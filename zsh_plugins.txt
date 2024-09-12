@@ -64,7 +64,6 @@ ael-code/zsh-colored-man-pages
 #
 ###
 $ZDOTDIR/completions/setup.zsh
-$ZDOTDIR/custom/plugins/ocaml
 
 ### Local Plugins with Variables
 #
