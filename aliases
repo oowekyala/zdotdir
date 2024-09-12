@@ -54,3 +54,7 @@ alias gadd='git add'
 alias gcam='git commit -am'
 alias gcim="git ci -m"
 alias gamendall='git commit -a --amend --no-edit'
+
+alias ledger=hledger
+alias on=xdg-open
+

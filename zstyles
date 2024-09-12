@@ -19,3 +19,6 @@ zstyle ':antidote:static' zcompile 'yes'
 # to have identities added only on first request
 zstyle ':omz:plugins:ssh-agent' lazy 'no'
 #zstyle ':omz:plugins:ssh-agent' lifetime '12h'
+
+zstyle ':omz:plugins:keychain' agents 'ssh'
+zstyle ':omz:plugins:keychain' options '--quiet'
