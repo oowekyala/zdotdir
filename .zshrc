@@ -25,9 +25,10 @@ source ${ZDOTDIR:-~}/.antidote/antidote.zsh
 # This here is inlined for a small startup time improvement
 #ZSH=$(antidote path ohmyzsh/ohmyzsh)
 ZSH="$HOME"/.cache/antidote/ohmyzsh/ohmyzsh
+# https://github.com/ohmyzsh/ohmyzsh/wiki/FAQ#completions-are-not-loaded-when-using-a-plugin-manager
 ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh"
-[[ -d $ZSH_CACHE_DIR ]] || mkdir -p $ZSH_CACHE_DIR
-
+mkdir -p "$ZSH_CACHE_DIR/completions"
+fpath=("$ZSH_CACHE_DIR/completions" $fpath)
  
 #### NOW LOAD ANTIDOTE
 
