@@ -29,6 +29,9 @@ ZSH="$HOME"/.cache/antidote/ohmyzsh/ohmyzsh
 ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh"
 mkdir -p "$ZSH_CACHE_DIR/completions"
 fpath=("$ZSH_CACHE_DIR/completions" $fpath)
+
+
+[[ -e ${ZDOTDIR:-~}/local-machine-conf ]] && source ${ZDOTDIR:-~}/local-machine-conf
  
 #### NOW LOAD ANTIDOTE
 
