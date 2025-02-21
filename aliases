@@ -43,9 +43,8 @@ alias zshrc='${EDITOR:-vi} "${ZDOTDIR:-$HOME}"/.zshrc'
 alias zbench='for i in {1..10}; do /usr/bin/time zsh -lic exit; done'
 alias zdot='cd ${ZDOTDIR:-~}'
 alias duh='du -h'
-alias hx=helix
-alias vim=helix
 alias vernicht='kill -9'
+alias vim=nvim
 
 
 # git
