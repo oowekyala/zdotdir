@@ -38,7 +38,7 @@ fpath=("$ZSH_CACHE_DIR/completions" $fpath)
 antidote load
 
 # Finally
-export EDITOR="${EDITOR:-helix}"
+export EDITOR="${EDITOR:-nvim}"
 export GPG_TTY=$(tty)
 export GNUPGHOME="$XDG_CONFIG_HOME"/gnupg
 
