@@ -41,6 +41,15 @@ class OptionRecord:
     description: str
     value_hint: str = ""
     choices: List[Choice] = field(default_factory=list)
+    sub_options: List["PassOption"] = field(default_factory=list)
+
+
+@dataclass
+class PassOption:
+    name: str
+    style: str
+    description: str
+    value_hint: str = ""
 
 
 def sanitize(text: str) -> str:
@@ -104,6 +113,7 @@ def parse_help(text: str) -> List[OptionRecord]:
     option_index: Dict[str, OptionRecord] = {}
     current: Optional[OptionRecord] = None
     last_type: Optional[str] = None
+    last_pass_indent: Optional[int] = None
 
     lines = text.splitlines()
     for raw_line in lines:
@@ -111,6 +121,8 @@ def parse_help(text: str) -> List[OptionRecord]:
         if not stripped:
             last_type = "blank"
             continue
+
+        indent = len(raw_line) - len(stripped)
 
         if stripped.startswith("="):
             if current is None:
@@ -139,32 +151,21 @@ def parse_help(text: str) -> List[OptionRecord]:
         if not option_part:
             continue
 
-        tokens = option_part.split()
-        token = tokens[0]
-        remainder = option_part[len(token):].strip()
-
-        style = "flag"
-        insert_text = token
-        name = token
-        value_hint = ""
-
-        if "=" in token:
-            name, _, tail = token.partition("=")
-            name = name.rstrip("[")
-            style = "attached"
-            insert_text = f"{name}="
-            tail = tail.rstrip("]")
-            if tail:
-                value_hint = tail
-            elif remainder.startswith("<"):
-                value_hint = remainder.split()[0]
-        elif remainder.startswith("<"):
-            style = "separate"
-            insert_text = name
-            value_hint = remainder.split()[0]
-
-        name = name.rstrip(",")
+        name, insert_text, style, value_hint = decode_option(option_part)
         if not name:
+            continue
+
+        is_pass_option = last_pass_indent and indent == last_pass_indent + 2
+        if is_pass_option and current is not None:
+            current.sub_options.append(
+                PassOption(
+                    name=name,
+                    style=style,
+                    description=description,
+                    value_hint=value_hint,
+                )
+            )
+            last_type = "pass-option"
             continue
 
         if name in option_index:
@@ -181,14 +182,45 @@ def parse_help(text: str) -> List[OptionRecord]:
             description=description,
             value_hint=value_hint,
         )
-        if name.startswith("--affine") or name=="--mode":
-          option_index[name] = record
-          options.append(record)
+        option_index[name] = record
+        options.append(record)
         current = record
         last_type = "option"
+        last_pass_indent = indent
         continue
 
     return options
+
+
+def decode_option(option_part: str) -> tuple[str, str, str, str]:
+    tokens = option_part.split()
+    if not tokens:
+        return "", "", "flag", ""
+    token = tokens[0]
+    remainder = option_part[len(token):].strip()
+
+    style = "flag"
+    insert_text = token
+    name = token
+    value_hint = ""
+
+    if "=" in token:
+        name, _, tail = token.partition("=")
+        name = name.rstrip("[")
+        style = "attached"
+        insert_text = f"{name}="
+        tail = tail.rstrip("]")
+        if tail:
+            value_hint = tail
+        elif remainder.startswith("<"):
+            value_hint = remainder.split()[0]
+    elif remainder.startswith("<"):
+        style = "separate"
+        insert_text = name
+        value_hint = remainder.split()[0]
+
+    name = name.rstrip(",")
+    return name, insert_text, style, value_hint
 
 
 def build_payload(binary: str) -> Dict[str, Any]:
@@ -205,6 +237,15 @@ def build_payload(binary: str) -> Dict[str, Any]:
                 "choices": [
                     {"value": choice.value, "description": choice.description}
                     for choice in opt.choices
+                ],
+                "sub_options": [
+                    {
+                        "name": sub.name,
+                        "style": sub.style,
+                        "description": sub.description,
+                        "value_hint": sub.value_hint,
+                    }
+                    for sub in opt.sub_options
                 ],
             }
             for opt in options

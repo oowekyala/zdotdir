@@ -94,26 +94,23 @@ _mlir_opt_comp() {
     local -a _mlir_arguments
     _mlir_arguments=()
     (( ${#arg_specs[@]} )) && _mlir_arguments+=("${arg_specs[@]}")
-    # _mlir_arguments+=('*:file:_files')
+    _mlir_arguments+=('*:file:_files')
 
     # echo "${_mlir_arguments[@]}"
 
     local state
     _arguments : "${_mlir_arguments[@]}"  
-    # _arguments '-v[verbose mode]' '--help[show help message]'
-    # _arguments '--affine-data-copy-generate[Generate explicit copying for affine memory operations]'
 
-    # case $state in
-    #     mliropt*)
-    #         local option_name=${state_option_map[$state]}
-    #         if [[ -n $option_name ]]; then
-    #             if ! __mlir_opt_comp_values "$helper" "$option_name"; then
-    #                 _message 'value'
-    #             fi
-    #             ret=0
-    #         fi
-    #         ;;
-    # esac
+    case $state in
+        mliropt*)
+            local option_name=${state_option_map[$state]}
+            if [[ -n $option_name ]]; then
+                if ! __mlir_opt_comp_values "$helper" "$option_name"; then
+                    _message 'value'
+                fi
+            fi
+            ;;
+    esac
 
     # return ret
 }
