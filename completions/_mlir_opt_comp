@@ -1,0 +1,119 @@
+#compdef tilefirst-opt mlir-opt-comp
+
+__mlir_opt_comp_helper_path() {
+    if (( $+functions_source[_mlir_opt_comp] )); then
+        local src=${functions_source[_mlir_opt_comp]}
+        if [[ -n $src ]]; then
+            print -r -- "${src:h}/mlir_opt_comp_helper.py"
+            return 0
+        fi
+    fi
+    print -r -- "$HOME/.config/zsh/completions/mlir_opt_comp_helper.py"
+}
+
+__mlir_opt_comp_helper_call() {
+    local helper=$1
+    shift
+    local -a args
+    args=("$@")
+    if [[ -n $MLIR_OPT_COMP_CMD ]]; then
+        args+=(--cmd "$MLIR_OPT_COMP_CMD")
+    fi
+    args+=("--no-cache")
+    "$helper" "${args[@]}"
+}
+
+__mlir_opt_comp_values() {
+    local helper=$1 base=$2
+    local output
+    output=$(__mlir_opt_comp_helper_call "$helper" list-values "$base" 2>/dev/null) || return 1
+    [[ -z $output ]] && return 1
+
+    local -a entries value_specs
+    entries=(${(0)output})
+    local field_sep=$'\x1f'
+    local entry
+    for entry in "${entries[@]}"; do
+        local -a parts
+        parts=(${(ps:$field_sep:)entry})
+        local value=${parts[1]}
+        local desc=${parts[2]}
+        [[ -z $value ]] && continue
+        desc=${desc//:/\\:}
+        value_specs+=("$value:$desc")
+    done
+    (( ${#value_specs} )) || return 1
+    _describe -t mlir-opt-values "values for $base" value_specs -Q
+}
+
+_mlir_opt_comp() {
+    local helper=$(__mlir_opt_comp_helper_path)
+    [[ -x $helper ]] || return 1
+
+    local output
+    output=$(__mlir_opt_comp_helper_call "$helper" list-options 2>/dev/null) || return 1
+    [[ -z $output ]] && return 1
+
+    local -a entries arg_specs
+    entries=(${(0)output})
+    local field_sep=$'\x1f'
+    typeset -A state_option_map
+    local idx=1
+    local entry
+    for entry in "${entries[@]}"; do
+        local -a parts
+        parts=(${(ps:$field_sep:)entry})
+        local base=${parts[1]}
+        local style=${parts[3]}
+        local desc=${parts[4]:-$base}
+        local hint=${parts[5]}
+        desc=${desc//]/\\]}
+        local value_label=${hint:-value}
+        value_label=${value_label// /_}
+        value_label=${value_label//:/_}
+        local state_name=''
+        case $style in
+            flag)
+                arg_specs+=("${base}[$desc]")
+                ;;
+            attached)
+                state_name="mliropt${idx}"
+                ((idx++))
+                state_option_map[$state_name]=$base
+                arg_specs+=("$base=[$desc]:$value_label:->$state_name")
+                ;;
+            separate)
+                state_name="mliropt${idx}"
+                ((idx++))
+                state_option_map[$state_name]=$base
+                arg_specs+=("${base}[$desc]:$value_label:->$state_name")
+                ;;
+        esac
+    done
+
+    local -a _mlir_arguments
+    _mlir_arguments=()
+    (( ${#arg_specs[@]} )) && _mlir_arguments+=("${arg_specs[@]}")
+    # _mlir_arguments+=('*:file:_files')
+
+    # echo "${_mlir_arguments[@]}"
+
+    local state
+    _arguments : "${_mlir_arguments[@]}"  
+    # _arguments '-v[verbose mode]' '--help[show help message]'
+    # _arguments '--affine-data-copy-generate[Generate explicit copying for affine memory operations]'
+
+    # case $state in
+    #     mliropt*)
+    #         local option_name=${state_option_map[$state]}
+    #         if [[ -n $option_name ]]; then
+    #             if ! __mlir_opt_comp_values "$helper" "$option_name"; then
+    #                 _message 'value'
+    #             fi
+    #             ret=0
+    #         fi
+    #         ;;
+    # esac
+
+    # return ret
+}
