@@ -44,5 +44,6 @@ export GNUPGHOME="$XDG_CONFIG_HOME"/gnupg
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && zsh-defer source "$HOME/.sdkman/bin/sdkman-init.sh"
+[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && zsh-defer source "$SDKMAN_DIR/bin/sdkman-init.sh"
+
 
