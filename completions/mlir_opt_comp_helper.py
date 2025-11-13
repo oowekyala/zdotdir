@@ -47,6 +47,7 @@ class OptionRecord:
 @dataclass
 class PassOption:
     name: str
+    insert_text: str
     style: str
     description: str
     value_hint: str = ""
@@ -120,6 +121,7 @@ def parse_help(text: str) -> List[OptionRecord]:
         stripped = raw_line.lstrip()
         if not stripped:
             last_type = "blank"
+            last_pass_indent = None
             continue
 
         indent = len(raw_line) - len(stripped)
@@ -138,6 +140,7 @@ def parse_help(text: str) -> List[OptionRecord]:
         if not stripped.startswith("-"):
             current = None
             last_type = "other"
+            last_pass_indent = None
             continue
 
         before_desc, sep, after_desc = stripped.partition(" - ")
@@ -155,11 +158,24 @@ def parse_help(text: str) -> List[OptionRecord]:
         if not name:
             continue
 
-        is_pass_option = last_pass_indent and indent == last_pass_indent + 2
+        is_pass_option = (
+            current is not None
+            and last_pass_indent is not None
+            and indent == last_pass_indent + 2
+            and stripped.startswith("--")
+        )
         if is_pass_option and current is not None:
+            pass_name = name.lstrip("-")
+            if not pass_name:
+                continue
+            if style == "attached":
+                pass_insert = f"{pass_name}="
+            else:
+                pass_insert = pass_name
             current.sub_options.append(
                 PassOption(
-                    name=name,
+                    name=pass_name,
+                    insert_text=pass_insert,
                     style=style,
                     description=description,
                     value_hint=value_hint,
@@ -241,6 +257,7 @@ def build_payload(binary: str) -> Dict[str, Any]:
                 "sub_options": [
                     {
                         "name": sub.name,
+                        "insert_text": sub.insert_text,
                         "style": sub.style,
                         "description": sub.description,
                         "value_hint": sub.value_hint,
@@ -295,6 +312,7 @@ def cmd_list_options(data: dict):
     for opt in data.get("options", []):
         desc = opt.get("description") or opt["name"]
         value_hint = opt.get("value_hint", "")
+        has_pass = bool(opt.get("sub_options"))
         entries.append(
             [
                 opt["name"],
@@ -302,6 +320,7 @@ def cmd_list_options(data: dict):
                 opt["style"],
                 desc,
                 value_hint,
+                "1" if has_pass else "0",
             ]
         )
     emit_entries(entries)
@@ -319,11 +338,34 @@ def cmd_list_values(data: dict, option_name: str):
     emit_entries([])
 
 
+def cmd_list_pass_options(data: dict, option_name: str):
+    for opt in data.get("options", []):
+        if opt["name"] == option_name:
+            entries = [
+                [
+                    sub["name"],
+                    sub.get("insert_text", sub["name"]),
+                    sub.get("style", "flag"),
+                    sub.get("description", sub["name"]),
+                    sub.get("value_hint", ""),
+                ]
+                for sub in opt.get("sub_options", [])
+            ]
+            emit_entries(entries)
+            return
+    emit_entries([])
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "mode",
-        choices=["list-options", "list-values", "clean-cache"],
+        choices=[
+            "list-options",
+            "list-values",
+            "list-pass-options",
+            "clean-cache",
+        ],
     )
     parser.add_argument("option", nargs="?")
     parser.add_argument("--cmd", dest="cmd")
@@ -370,6 +412,10 @@ def main() -> int:
         if not args.option:
             return 1
         cmd_list_values(data, args.option)
+    elif args.mode == "list-pass-options":
+        if not args.option:
+            return 1
+        cmd_list_pass_options(data, args.option)
     return 0
 
 
