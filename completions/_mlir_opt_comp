@@ -1,4 +1,4 @@
-#compdef tilefirst-opt mlir-opt-comp
+#compdef tilefirst-opt mlir-opt
 
 __mlir_opt_comp_helper_path() {
     if (( $+functions_source[_mlir_opt_comp] )); then
@@ -15,11 +15,11 @@ __mlir_opt_comp_helper_call() {
     local helper=$1
     shift
     local -a args
-    args=("$@")
     if [[ -n $MLIR_OPT_COMP_CMD ]]; then
         args+=(--cmd "$MLIR_OPT_COMP_CMD")
     fi
     args+=(--no-cache)
+    args+=("$@")
     "$helper" "${args[@]}"
 }
 
@@ -64,7 +64,7 @@ __mlir_opt_comp_pass_options() {
         local style=${parts[3]}
         local desc=${parts[4]:-$name}
         local hint=${parts[5]}
-        if [[ $style == attached && $insert != *= ]]; then
+        if [[ "$style" == attached && "$insert" != *= ]]; then
             insert+="="
         fi
         [[ -n $hint ]] && desc+=" ($hint)"
@@ -75,9 +75,34 @@ __mlir_opt_comp_pass_options() {
     _values -s ' ' 'pass option' "${specs[@]}"
 }
 
+# Delete the space when typing = after an option name, allows typing pass options 
+_mlir_opt_comp_equal_handler() {
+    [[ $1 = 1 && $LBUFFER[-1] = ' ' && $KEYS = '=' ]] || return
+    LBUFFER="${LBUFFER[1,-2]}="
+}
+
+ _mlir_pass_opt_comp() {
+    local helper=$1 
+    local rline match mbegin mend pfx
+    local -a rl
+
+    # pfx is the option/pass name 
+    pfx=${${${(Q)PREFIX}%%=*}##\s*}
+    compset -P '*='
+
+    # TODO add space when adding a second pass option
+    __mlir_opt_comp_pass_options "$helper" "$pfx"
+  }
+
+
 _mlir_opt_comp() {
     local helper=$(__mlir_opt_comp_helper_path)
     [[ -x $helper ]] || return 1
+
+    if [[ "$PREFIX" = *=* ]]; then
+      _mlir_pass_opt_comp "$helper"
+      return
+    fi
 
     local output
     output=$(__mlir_opt_comp_helper_call "$helper" list-options 2>/dev/null) || return 1
@@ -130,8 +155,9 @@ _mlir_opt_comp() {
     (( ${#arg_specs[@]} )) && _mlir_arguments+=("${arg_specs[@]}")
     _mlir_arguments+=('*:file:_files')
 
+
     local state
-    _arguments : "${_mlir_arguments[@]}"
+    _arguments -S : "${_mlir_arguments[@]}"
 
     case $state in
         mliropt*)
@@ -146,7 +172,7 @@ _mlir_opt_comp() {
                             return
                         fi
                     fi
-                    if compset -P '*=' && __mlir_opt_comp_pass_options "$helper" "$option_name"; then
+                    if compset -P '*=' ; __mlir_opt_comp_pass_options "$helper" "$option_name"; then
                       return
                     fi
                     _message 'pass option'
