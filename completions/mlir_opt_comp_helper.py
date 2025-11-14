@@ -165,17 +165,13 @@ def parse_help(text: str) -> List[OptionRecord]:
             and stripped.startswith("--")
         )
         if is_pass_option and current is not None:
-            pass_name = name.lstrip("-")
-            if not pass_name:
+            pass_opt_name = name.lstrip("-")
+            if not pass_opt_name:
                 continue
-            if style == "attached":
-                pass_insert = f"{pass_name}="
-            else:
-                pass_insert = pass_name
             current.sub_options.append(
                 PassOption(
-                    name=pass_name,
-                    insert_text=pass_insert,
+                    name=pass_opt_name,
+                    insert_text=pass_opt_name, # = insertion handled by zsh
                     style=style,
                     description=description,
                     value_hint=value_hint,

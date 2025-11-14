@@ -47,9 +47,13 @@ __mlir_opt_comp_values() {
 }
 
 __mlir_opt_comp_pass_options() {
-    local helper=$1 base=$2
-    local output
-    output=$(__mlir_opt_comp_helper_call "$helper" list-pass-options -- "$base" 2>/dev/null) || return 1
+    local helper=$1 
+    local output opt_name
+
+    opt_name=${${${(Q)PREFIX}%%=*}##\s*}
+    compset -P '*='
+
+    output=$(__mlir_opt_comp_helper_call "$helper" list-pass-options -- "$opt_name" 2>/dev/null) || return 1
     [[ -z $output ]] && return 1
 
     local -a entries specs
@@ -59,20 +63,23 @@ __mlir_opt_comp_pass_options() {
     for entry in "${entries[@]}"; do
         local -a parts
         parts=(${(ps:$field_sep:)entry})
-        local name=${parts[1]}
-        local insert=${parts[2]:-$name}
+        local insert=${parts[1]}
         local style=${parts[3]}
-        local desc=${parts[4]:-$name}
+        local desc=${parts[4]:-${parts[1]}}
         local hint=${parts[5]}
-        if [[ "$style" == attached && "$insert" != *= ]]; then
-            insert+="="
+        local value_label=${hint:-value}
+        value_label=${value_label// /_}
+        value_label=${value_label//:/_}
+        desc=${desc//]/\\]}
+        if [[ -z "$hint" ]]; then
+          specs+=("${insert}[$desc]")
+        else
+          # TODO need to list possible values using :(a b c) form in the spec
+          specs+=("${insert}[$desc]:$hint:")
         fi
-        [[ -n $hint ]] && desc+=" ($hint)"
-        desc=${desc//:/\\:}
-        specs+=("$insert:$desc")
     done
     (( ${#specs[@]} )) || return 1
-    _values -s ' ' 'pass option' "${specs[@]}"
+    _values -S ' ' "Options for $opt_name" "${specs[@]}"
 }
 
 # Delete the space when typing = after an option name, allows typing pass options 
@@ -81,26 +88,12 @@ _mlir_opt_comp_equal_handler() {
     LBUFFER="${LBUFFER[1,-2]}="
 }
 
- _mlir_pass_opt_comp() {
-    local helper=$1 
-    local rline match mbegin mend pfx
-    local -a rl
-
-    # pfx is the option/pass name 
-    pfx=${${${(Q)PREFIX}%%=*}##\s*}
-    compset -P '*='
-
-    # TODO add space when adding a second pass option
-    __mlir_opt_comp_pass_options "$helper" "$pfx"
-  }
-
-
 _mlir_opt_comp() {
     local helper=$(__mlir_opt_comp_helper_path)
     [[ -x $helper ]] || return 1
 
     if [[ "$PREFIX" = *=* ]]; then
-      _mlir_pass_opt_comp "$helper"
+      __mlir_opt_comp_pass_options "$helper"
       return
     fi
 
@@ -136,16 +129,16 @@ _mlir_opt_comp() {
         case $style in
             flag)
                 if [[ $has_pass_options == 1 ]]; then 
-                  arg_specs+=("${base}=[$desc]::->$state_name")
+                  arg_specs+=("*${base}=[$desc]::->$state_name")
                 else
-                  arg_specs+=("${base}[$desc]")
+                  arg_specs+=("*${base}[$desc]")
                 fi
                 ;;
             attached)
-                arg_specs+=("$base=[$desc]:$value_label:->$state_name")
+                arg_specs+=("*${base}=[$desc]:$value_label:->$state_name")
                 ;;
             separate)
-                arg_specs+=("${base}[$desc]:$value_label:->$state_name")
+                arg_specs+=("*${base}[$desc]:$value_label:->$state_name")
                 ;;
         esac
     done
@@ -157,7 +150,7 @@ _mlir_opt_comp() {
 
 
     local state
-    _arguments -S : "${_mlir_arguments[@]}"
+    _arguments -S : "${_mlir_arguments[@]}" && return 0
 
     case $state in
         mliropt*)
