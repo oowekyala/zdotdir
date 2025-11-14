@@ -16,7 +16,7 @@ import re
 import shutil
 import subprocess
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
 
@@ -51,6 +51,7 @@ class PassOption:
     style: str
     description: str
     value_hint: str = ""
+    choices: List[Choice] = field(default_factory=list)
 
 
 def sanitize(text: str) -> str:
@@ -111,8 +112,8 @@ def run_help(binary: str) -> str:
 
 def parse_help(text: str) -> List[OptionRecord]:
     options: List[OptionRecord] = []
-    option_index: Dict[str, OptionRecord] = {}
-    current: Optional[OptionRecord] = None
+    current: Optional[PassOption] = None
+    current_opt: Optional[OptionRecord] = None
     last_type: Optional[str] = None
     last_pass_indent: Optional[int] = None
 
@@ -127,18 +128,19 @@ def parse_help(text: str) -> List[OptionRecord]:
         indent = len(raw_line) - len(stripped)
 
         if stripped.startswith("="):
-            if current is None:
+            if current_opt is None:
                 continue
             value_part, _, desc_part = stripped.partition("-")
             value = sanitize(value_part.lstrip("=") )
             desc = sanitize(desc_part)
             if value:
-                current.choices.append(Choice(value=value, description=desc))
+                current_opt.choices.append(Choice(value=value, description=desc))
             last_type = "choice"
             continue
 
         if not stripped.startswith("-"):
             current = None
+            current_opt = None
             last_type = "other"
             last_pass_indent = None
             continue
@@ -146,6 +148,7 @@ def parse_help(text: str) -> List[OptionRecord]:
         before_desc, sep, after_desc = stripped.partition(" - ")
         if not sep:
             current = None
+            current_opt = None
             last_type = "other"
             continue
 
@@ -164,39 +167,29 @@ def parse_help(text: str) -> List[OptionRecord]:
             and indent == last_pass_indent + 2
             and stripped.startswith("--")
         )
-        if is_pass_option and current is not None:
+        if is_pass_option:
             pass_opt_name = name.lstrip("-")
             if not pass_opt_name:
                 continue
-            current.sub_options.append(
-                PassOption(
-                    name=pass_opt_name,
-                    insert_text=pass_opt_name, # = insertion handled by zsh
-                    style=style,
-                    description=description,
-                    value_hint=value_hint,
-                )
+            current_opt = PassOption(
+                name=pass_opt_name,
+                insert_text=pass_opt_name, # = insertion handled by zsh
+                style=style,
+                description=description,
+                value_hint=value_hint,
             )
+            current.sub_options.append(current_opt)
             last_type = "pass-option"
             continue
 
-        if name in option_index:
-            current = option_index[name]
-            if description and not current.description:
-                current.description = description
-            last_type = "option"
-            continue
-
-        record = OptionRecord(
+        current = OptionRecord(
             name=name,
             insert_text=insert_text,
             style=style,
             description=description,
             value_hint=value_hint,
         )
-        option_index[name] = record
-        options.append(record)
-        current = record
+        options.append(current)
         last_type = "option"
         last_pass_indent = indent
         continue
@@ -240,28 +233,7 @@ def build_payload(binary: str) -> Dict[str, Any]:
     options = parse_help(help_text)
     return {
         "options": [
-            {
-                "name": opt.name,
-                "insert_text": opt.insert_text,
-                "style": opt.style,
-                "description": opt.description,
-                "value_hint": opt.value_hint,
-                "choices": [
-                    {"value": choice.value, "description": choice.description}
-                    for choice in opt.choices
-                ],
-                "sub_options": [
-                    {
-                        "name": sub.name,
-                        "insert_text": sub.insert_text,
-                        "style": sub.style,
-                        "description": sub.description,
-                        "value_hint": sub.value_hint,
-                    }
-                    for sub in opt.sub_options
-                ],
-            }
-            for opt in options
+            asdict(opt) for opt in options
         ]
     }
 
@@ -333,18 +305,31 @@ def cmd_list_values(data: dict, option_name: str):
             return
     emit_entries([])
 
+def to_zsh_value(opt: OptionRecord):
+  def esc(s, d=1):
+    return s.replace(':', '\\' * d + ':')
+
+  if opt.style == 'flag':
+    return f"{opt.name}[{esc(opt.description)}]"
+  if len(opt.choices) > 0:
+    values = ' '.join([
+      f"{choice["value"]}\\:{esc(choice["description"].strip().replace(' ', '\\ '), d=2)}"
+      for choice in opt.choices
+    ]) 
+    values = f"(({values}))"
+  else:
+    values = ""
+    
+  hint = opt.value_hint or ""
+  hint = hint.lstrip('<').rstrip('>')
+  return f"{opt.name}[{esc(opt.description)}]:{esc(hint)}:{values}"
+
 
 def cmd_list_pass_options(data: dict, option_name: str):
     for opt in data.get("options", []):
         if opt["name"] == option_name:
             entries = [
-                [
-                    sub["name"],
-                    sub.get("insert_text", sub["name"]),
-                    sub.get("style", "flag"),
-                    sub.get("description", sub["name"]),
-                    sub.get("value_hint", ""),
-                ]
+                [to_zsh_value(OptionRecord(**sub))]
                 for sub in opt.get("sub_options", [])
             ]
             emit_entries(entries)
