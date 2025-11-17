@@ -1,5 +1,18 @@
 #compdef tilefirst-opt mlir-opt
 
+# Completion script for mlir-opt. This parses the --help text of MLIR and:
+# - Filters out irrelevant LLVM options (zstyle TODO)
+# - Adds completion docs for pass options and their values
+# The output of parsing the help text is cached to make completions faster.
+# - Disable the cache with zstyle TODO
+# - Clean the cache with _mlir_opt_clear_completion_cache (you need to have loaded this file first)
+#
+# The main completion function _mlir_opt_comp can be used with any mlir-opt-like program.
+# For instance:
+#     compdef _mlir_opt_comp mlir-opt cinm-opt iree-opt
+# will register it for more executables.
+
+
 __mlir_opt_comp_helper_path() {
     if (( $+functions_source[_mlir_opt_comp] )); then
         local src=${functions_source[_mlir_opt_comp]}
@@ -54,17 +67,6 @@ __mlir_opt_comp_pass_options() {
     compset -P 1 '*='
     # The rest of the prefix is now just the options part, it 
     # may itself contain spaces and/or an equal sign.
-
-    if [[ "$PREFIX" = *= ]]; then
-      # Then we are in a context like
-      # --pass-name=option_name=<CARET>
-      # [IPREFIX   ][ PREFIX   ]
-      # We need to get the option name by cutting up the last word. 
-      # compset -P '*=' # cut up to the last option 
-      # compset -P '* '
-      # opt_name=${${(Q)IPREFIX}%%*=}
-      
-    fi
 
     output=$(__mlir_opt_comp_helper_call "$helper" list-pass-options -- "$pass_name" 2>/dev/null) || return 1
     [[ -z $output ]] && return 1
