@@ -98,6 +98,11 @@ _mlir_pass_opt_suffix_handler() {
   fi
 }
 
+_mlir_opt_clear_completion_cache() {
+  local helper=$(__mlir_opt_comp_helper_path)
+  __mlir_opt_comp_helper_call "$helper" clean-cache
+}
+
 _mlir_opt_comp() {
     local helper=$(__mlir_opt_comp_helper_path)
     [[ -x $helper ]] || return 1
@@ -139,7 +144,7 @@ _mlir_opt_comp() {
         case $style in
             flag)
                 if [[ $has_pass_options == 1 ]]; then 
-                  arg_specs+=("*${base}=[$desc]::->$state_name")
+                  arg_specs+=("*${base}=-[$desc]::->$state_name")
                 else
                   arg_specs+=("*${base}[$desc]")
                 fi

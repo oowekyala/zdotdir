@@ -16,6 +16,7 @@ import re
 import shutil
 import subprocess
 import sys
+from enum import Enum
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional
@@ -29,13 +30,23 @@ CACHE_BASENAME = "mlir_opt_comp_cache.json"
 
 @dataclass
 class Choice:
+    """One case in an option that has multiple possible values."""
     value: str
     description: str
+
+class OptionCategory(Enum):
+  GENERIC = 1 # --color, --help
+  MLIR_OPTION = 2 # --mlir-*
+  MLIR_PASS = 3 
+  MLIR_PASS_PIPELINE = 4
+  LLVM = 5 # ignored
 
 
 @dataclass
 class OptionRecord:
+    """mlir-opt option"""
     name: str
+    category: OptionCategory 
     insert_text: str
     style: str  # flag | attached | separate
     description: str
@@ -46,6 +57,7 @@ class OptionRecord:
 
 @dataclass
 class PassOption:
+    """One option of an MLIR pass"""
     name: str
     insert_text: str
     style: str
@@ -109,6 +121,43 @@ def run_help(binary: str) -> str:
         ) from exc
     return completed.stdout
 
+class HelpState(Enum):
+  GENERAL_LLVM = 1
+  MLIR_PASSES = 2
+  MLIR_PIPELINES = 3
+  GENERIC_OPTIONS = 4
+
+  def new_state_on_header(self, header: str):
+    match header:
+      case "Generic Options:":
+        return HelpState.GENERIC_OPTIONS
+      case "General Options:":
+        return HelpState.GENERAL_LLVM
+      case "IR2Vec Options:":
+        return HelpState.GENERAL_LLVM
+      case "Passes:":
+        return HelpState.MLIR_PASSES
+      case "Pass Pipelines:":
+        return HelpState.MLIR_PASSES
+      case "Color Options:":
+        return HelpState.GENERIC_OPTIONS
+      case _:
+        return self
+
+  def category(self, opt_name: str):
+    match self:
+      case HelpState.GENERAL_LLVM:
+        if opt_name.startswith("--mlir-"):
+          return OptionCategory.MLIR_OPTION
+        else:
+          return OptionCategory.LLVM
+      case HelpState.MLIR_PASSES:
+        return OptionCategory.MLIR_PASS
+      case HelpState.MLIR_PIPELINES:
+        return OptionCategory.MLIR_PASS_PIPELINE
+      case HelpState.GENERIC_OPTIONS:
+        return OptionCategory.GENERIC
+
 
 def parse_help(text: str) -> List[OptionRecord]:
     options: List[OptionRecord] = []
@@ -116,6 +165,7 @@ def parse_help(text: str) -> List[OptionRecord]:
     current_opt: Optional[OptionRecord] = None
     last_type: Optional[str] = None
     last_pass_indent: Optional[int] = None
+    state: HelpState = HelpState.GENERAL_LLVM
 
     lines = text.splitlines()
     for raw_line in lines:
@@ -126,6 +176,9 @@ def parse_help(text: str) -> List[OptionRecord]:
             continue
 
         indent = len(raw_line) - len(stripped)
+
+        if last_pass_indent is not None and indent <= last_pass_indent - 4 and state == HelpState.MLIR_PIPELINES:
+          state = HelpState.GENERAL_LLVM
 
         if stripped.startswith("="):
             if current_opt is None:
@@ -139,6 +192,13 @@ def parse_help(text: str) -> List[OptionRecord]:
             continue
 
         if not stripped.startswith("-"):
+            # Need several categories:
+            # - generic options (--help, --color)
+            # - MLIR options (--mlir-*)
+            # - passes
+            # - pass pipelines
+            # - LLVM (ignored)
+            state = state.new_state_on_header(stripped)
             current = None
             current_opt = None
             last_type = "other"
@@ -184,6 +244,7 @@ def parse_help(text: str) -> List[OptionRecord]:
 
         current = OptionRecord(
             name=name,
+            category=state.category(name),
             insert_text=insert_text,
             style=style,
             description=description,
@@ -280,7 +341,7 @@ def cmd_list_options(data: dict):
     for opt in data.get("options", []):
         desc = opt.get("description") or opt["name"]
         value_hint = opt.get("value_hint", "")
-        has_pass = bool(opt.get("sub_options"))
+        has_options = bool(opt.get("sub_options"))
         entries.append(
             [
                 opt["name"],
@@ -288,7 +349,7 @@ def cmd_list_options(data: dict):
                 opt["style"],
                 desc,
                 value_hint,
-                "1" if has_pass else "0",
+                "1" if has_options else "0",
             ]
         )
     emit_entries(entries)
@@ -305,9 +366,14 @@ def cmd_list_values(data: dict, option_name: str):
             return
     emit_entries([])
 
-def to_zsh_value(opt: OptionRecord):
+def to_zsh_value(opt: PassOption):
   def esc(s, d=1):
     return s.replace(':', '\\' * d + ':')
+
+  hint = opt.value_hint or ""
+  hint = hint.lstrip('<').rstrip('>')
+  if hint == "value":
+    hint = f"{opt.name} value"
 
   if opt.style == 'flag':
     return f"{opt.name}[{esc(opt.description)}]"
@@ -317,11 +383,13 @@ def to_zsh_value(opt: OptionRecord):
       for choice in opt.choices
     ]) 
     values = f"(({values}))"
+  elif hint in ("number", "int", "long"):
+    values = "_numbers"
+  elif hint in ("uint", "ulong"):
+    values = "_numbers -l 0"
   else:
     values = ""
     
-  hint = opt.value_hint or ""
-  hint = hint.lstrip('<').rstrip('>')
   return f"{opt.name}[{esc(opt.description)}]:{esc(hint)}:{values}"
 
 
@@ -329,7 +397,7 @@ def cmd_list_pass_options(data: dict, option_name: str):
     for opt in data.get("options", []):
         if opt["name"] == option_name:
             entries = [
-                [to_zsh_value(OptionRecord(**sub))]
+                [to_zsh_value(PassOption(**sub))]
                 for sub in opt.get("sub_options", [])
             ]
             emit_entries(entries)
