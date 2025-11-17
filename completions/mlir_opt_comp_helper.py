@@ -131,14 +131,14 @@ class HelpState(Enum):
     match header:
       case "Generic Options:":
         return HelpState.GENERIC_OPTIONS
-      case "General Options:":
+      case "General options:":
         return HelpState.GENERAL_LLVM
       case "IR2Vec Options:":
         return HelpState.GENERAL_LLVM
       case "Passes:":
         return HelpState.MLIR_PASSES
       case "Pass Pipelines:":
-        return HelpState.MLIR_PASSES
+        return HelpState.MLIR_PIPELINES
       case "Color Options:":
         return HelpState.GENERIC_OPTIONS
       case _:
@@ -336,22 +336,51 @@ def emit_entries(entries: Iterable[List[str]]):
     sys.stdout.write(ENTRY_SEP.join(chunks))
 
 
+def esc(s, d=1):
+  return s.replace(':', '\\' * d + ':')
+
+def option_to_values(opt: OptionRecord | PassOption) -> (str, str):
+  hint = opt.value_hint or ""
+  hint = hint.lstrip('<').rstrip('>')
+  if hint == "value":
+    hint = f"{opt.name} value"
+
+  if len(opt.choices) > 0:
+    values = ' '.join([
+      f"{choice["value"]}\\:{esc(choice["description"].strip().replace(' ', '\\ '), d=2)}"
+      for choice in opt.choices
+    ]) 
+    values = f"(({values}))"
+  elif hint in ("number", "int", "long"):
+    values = "_numbers"
+  elif hint in ("uint", "ulong"):
+    values = "_numbers -l 0"
+  else:
+    values = ""
+  
+  return (hint, values)
+
+
+def to_zsh_optspec(opt: OptionRecord):
+  hint, values = option_to_values(opt)
+
+  repeatable = opt.category in (OptionCategory.MLIR_PASS, OptionCategory.MLIR_PASS_PIPELINE)
+
+  repetitionstar = '*' if repeatable else ''
+  passoptsep = '=-' if len(opt.choices) > 0 or len(opt.sub_options) > 0 else ''
+  descr = esc(opt.description).replace(']', '\\]')
+
+  return f"{repetitionstar}{opt.name}{passoptsep}[{descr}]:{esc(hint)}:{values}"
+
+
 def cmd_list_options(data: dict):
     entries = []
+    # print(data)
     for opt in data.get("options", []):
-        desc = opt.get("description") or opt["name"]
-        value_hint = opt.get("value_hint", "")
-        has_options = bool(opt.get("sub_options"))
-        entries.append(
-            [
-                opt["name"],
-                opt["insert_text"],
-                opt["style"],
-                desc,
-                value_hint,
-                "1" if has_options else "0",
-            ]
-        )
+      record = OptionRecord(**opt)
+      if record.category == OptionCategory.LLVM:
+        continue
+      entries.append([ to_zsh_optspec(record) ])
     emit_entries(entries)
 
 
@@ -367,29 +396,10 @@ def cmd_list_values(data: dict, option_name: str):
     emit_entries([])
 
 def to_zsh_value(opt: PassOption):
-  def esc(s, d=1):
-    return s.replace(':', '\\' * d + ':')
-
-  hint = opt.value_hint or ""
-  hint = hint.lstrip('<').rstrip('>')
-  if hint == "value":
-    hint = f"{opt.name} value"
-
   if opt.style == 'flag':
     return f"{opt.name}[{esc(opt.description)}]"
-  if len(opt.choices) > 0:
-    values = ' '.join([
-      f"{choice["value"]}\\:{esc(choice["description"].strip().replace(' ', '\\ '), d=2)}"
-      for choice in opt.choices
-    ]) 
-    values = f"(({values}))"
-  elif hint in ("number", "int", "long"):
-    values = "_numbers"
-  elif hint in ("uint", "ulong"):
-    values = "_numbers -l 0"
-  else:
-    values = ""
-    
+
+  hint, values = option_to_values(opt)
   return f"{opt.name}[{esc(opt.description)}]:{esc(hint)}:{values}"
 
 

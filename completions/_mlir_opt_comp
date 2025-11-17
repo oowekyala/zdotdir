@@ -116,91 +116,15 @@ _mlir_opt_comp() {
     output=$(__mlir_opt_comp_helper_call "$helper" list-options 2>/dev/null) || return 1
     [[ -z $output ]] && return 1
 
-    local -a entries arg_specs
-    entries=(${(0)output})
-    local field_sep=$'\x1f'
-    typeset -A state_option_map option_styles pass_has_options
-    local idx=1
-    local entry
-    for entry in "${entries[@]}"; do
-        local -a parts
-        parts=(${(ps:$field_sep:)entry})
-        local base=${parts[1]}
-        local style=${parts[3]}
-        local desc=${parts[4]:-$base}
-        local hint=${parts[5]}
-        local has_pass_options=${parts[6]}
-        desc=${desc//]/\\]}
-        local value_label=${hint:-value}
-        value_label=${value_label// /_}
-        value_label=${value_label//:/_}
-        local state_name=''
-        option_styles[$base]=$style
-        pass_has_options[$base]=$has_pass_options
-
-        state_name="mliropt${idx}"
-        ((idx++))
-        state_option_map[$state_name]=$base
-        case $style in
-            flag)
-                if [[ $has_pass_options == 1 ]]; then 
-                  arg_specs+=("*${base}=-[$desc]::->$state_name")
-                else
-                  arg_specs+=("*${base}[$desc]")
-                fi
-                ;;
-            attached)
-                arg_specs+=("*${base}=[$desc]:$value_label:->$state_name")
-                ;;
-            separate)
-                arg_specs+=("*${base}[$desc]:$value_label:->$state_name")
-                ;;
-        esac
-    done
-
-    local -a _mlir_arguments
-    _mlir_arguments=()
-    (( ${#arg_specs[@]} )) && _mlir_arguments+=("${arg_specs[@]}")
-    _mlir_arguments+=('*:file:_files')
-
-    # TODO maybe ignore suffix after `=` so that writing `--pass-name=foo`
-    #  will only apply _arguments to `--pass-name`, then switch to the proper
-    #  state, and only then populate completions for the pass options. 
+    local -a arg_specs
+    arg_specs=(${(0)output})
+    arg_specs+=('*:file:_files')
 
     local context state state_descr line
     typeset -A opt_args
 
     local -a compadd_args=(-R _mlir_pass_opt_suffix_handler)
 
-    _arguments -R -S -O compadd_args : "${_mlir_arguments[@]}" && return 0
+    _arguments -R -S -O compadd_args : "${arg_specs[@]}" && return 0
 
-    
-
-    case $state in
-        mliropt*)
-            local option_name=${state_option_map[$state]}
-            if [[ -n $option_name ]]; then
-                local opt_style=${option_styles[$option_name]}
-                local has_options=${pass_has_options[$option_name]}
-                if [[ $has_options == 1 ]]; then
-                    # if [[ $opt_style == attached ]]; then
-                    #     if ! compset -P '*='; then
-                    #         _message 'pass option'
-                    #         return
-                    #     fi
-                    # fi
-                    if compset -P '*='; then
-                      __mlir_opt_comp_pass_options "$helper" 
-                      return
-                    fi
-                    _message 'pass option'
-                    return
-                else
-                    if ! __mlir_opt_comp_values "$helper" "$option_name"; then
-                        _message 'value'
-                    fi
-                fi
-            fi
-            ;;
-    esac
 }
