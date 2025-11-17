@@ -18,7 +18,7 @@ __mlir_opt_comp_helper_call() {
     if [[ -n $MLIR_OPT_COMP_CMD ]]; then
         args+=(--cmd "$MLIR_OPT_COMP_CMD")
     fi
-    args+=(--no-cache)
+    # args+=(--no-cache)
     args+=("$@")
     "$helper" "${args[@]}"
 }
@@ -48,24 +48,54 @@ __mlir_opt_comp_values() {
 
 __mlir_opt_comp_pass_options() {
     local helper=$1 
-    local output opt_name
+    local output pass_name
 
-    opt_name=${${${(Q)PREFIX}%%=*}##\s*}
-    compset -P '*='
+    pass_name=${${(Q)PREFIX}%%=*}
+    compset -P 1 '*='
+    # The rest of the prefix is now just the options part, it 
+    # may itself contain spaces and/or an equal sign.
 
-    output=$(__mlir_opt_comp_helper_call "$helper" list-pass-options -- "$opt_name" 2>/dev/null) || return 1
+    if [[ "$PREFIX" = *= ]]; then
+      # Then we are in a context like
+      # --pass-name=option_name=<CARET>
+      # [IPREFIX   ][ PREFIX   ]
+      # We need to get the option name by cutting up the last word. 
+      # compset -P '*=' # cut up to the last option 
+      # compset -P '* '
+      # opt_name=${${(Q)IPREFIX}%%*=}
+      
+    fi
+
+    output=$(__mlir_opt_comp_helper_call "$helper" list-pass-options -- "$pass_name" 2>/dev/null) || return 1
     [[ -z $output ]] && return 1
 
     local -a specs
     specs=(${(0)output})
     (( ${#specs[@]} )) || return 1
-    _values -s ' ' "Options for $opt_name" "${specs[@]}"
+    _values -s ' ' "Options for $pass_name" "${specs[@]}"
 }
 
 # Delete the space when typing = after an option name, allows typing pass options 
 _mlir_opt_comp_equal_handler() {
     [[ $1 = 1 && $LBUFFER[-1] = ' ' && $KEYS = '=' ]] || return
     LBUFFER="${LBUFFER[1,-2]}="
+}
+
+_mlir_pass_opt_suffix_handler() {
+  # ZLE completion widget invoked after inserting a pass name. If the user
+  # types an '=', the space added after the pass name will be deleted to place
+  # ourselves in pass options context.
+  [[ $1 = 1 ]] || return
+
+  if [[ $LBUFFER[-1] = ' ' ]]; then
+    if [[ $KEYS = '=' ]]; then
+      # Suffix removal 
+      LBUFFER="$LBUFFER[1,-2]"
+    elif [[ $KEYS = (*[^[:print:]]*|[[:blank:]\;\&\|@]) ]]; then
+      # Normal suffix removal
+      LBUFFER="$LBUFFER[1,-2]"
+    fi
+  fi
 }
 
 _mlir_opt_comp() {
@@ -128,9 +158,18 @@ _mlir_opt_comp() {
     (( ${#arg_specs[@]} )) && _mlir_arguments+=("${arg_specs[@]}")
     _mlir_arguments+=('*:file:_files')
 
+    # TODO maybe ignore suffix after `=` so that writing `--pass-name=foo`
+    #  will only apply _arguments to `--pass-name`, then switch to the proper
+    #  state, and only then populate completions for the pass options. 
 
-    local state
-    _arguments -S : "${_mlir_arguments[@]}" && return 0
+    local context state state_descr line
+    typeset -A opt_args
+
+    local -a compadd_args=(-R _mlir_pass_opt_suffix_handler)
+
+    _arguments -R -S -O compadd_args : "${_mlir_arguments[@]}" && return 0
+
+    
 
     case $state in
         mliropt*)
@@ -139,13 +178,14 @@ _mlir_opt_comp() {
                 local opt_style=${option_styles[$option_name]}
                 local has_options=${pass_has_options[$option_name]}
                 if [[ $has_options == 1 ]]; then
-                    if [[ $opt_style == attached ]]; then
-                        if ! compset -P '*='; then
-                            _message 'pass option'
-                            return
-                        fi
-                    fi
-                    if compset -P '*=' ; __mlir_opt_comp_pass_options "$helper" "$option_name"; then
+                    # if [[ $opt_style == attached ]]; then
+                    #     if ! compset -P '*='; then
+                    #         _message 'pass option'
+                    #         return
+                    #     fi
+                    # fi
+                    if compset -P '*='; then
+                      __mlir_opt_comp_pass_options "$helper" 
                       return
                     fi
                     _message 'pass option'

@@ -96,7 +96,7 @@ def save_cache(path: Path, payload: dict) -> None:
 def run_help(binary: str) -> str:
     try:
         completed = subprocess.run(
-            [binary, "--help"],
+            [binary, "--help-hidden"],
             check=True,
             capture_output=True,
             text=True,
@@ -105,7 +105,7 @@ def run_help(binary: str) -> str:
         raise FileNotFoundError(f"Command '{binary}' not found") from exc
     except subprocess.CalledProcessError as exc:
         raise RuntimeError(
-            f"Failed to execute '{binary} --help' (exit code {exc.returncode})"
+            f"Failed to execute '{binary} --help-hidden' (exit code {exc.returncode})"
         ) from exc
     return completed.stdout
 
