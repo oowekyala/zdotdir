@@ -116,7 +116,10 @@ _just() {
                 return $?
             elif [[ $recipe ]]; then
                 if [[ $recipe = 'tilefirst-opt' || $recipe = 'cinm-opt' ]]; then
-                    MLIR_OPT_COMP_CMD="$(pwd)/build/bin/$recipe" _mlir_opt
+                    export MLIR_OPT_COMP_CMD="$(pwd)/build/bin/$recipe"
+                    (( i-- ))
+                    shift $i words
+                    _mlir_opt
                     return $?
                 else
                     # Show usage message
