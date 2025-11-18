@@ -8,9 +8,9 @@ _just() {
     local ret=1
 
     if is-at-least 5.2; then
-        _arguments_options=(-s -S -C)
+        _arguments_options=(-s -S -R -C -A '-*')
     else
-        _arguments_options=(-s -C)
+        _arguments_options=(-s -R -C -A '-*')
     fi
 
     local context curcontext="$curcontext" state line
@@ -89,7 +89,7 @@ _just() {
     _arguments "${_arguments_options[@]}" $common \
         '1: :_just_commands' \
         '*: :->args' \
-        && ret=0
+        && return 0
 
     case $state in
         args)
@@ -113,21 +113,28 @@ _just() {
             if [[ $lastarg = */* ]]; then
                 # Arguments contain slash would be recognised as a file
                 _arguments -s -S $common '*:: :_files'
+                return $?
+            elif [[ $recipe ]]; then
+                if [[ $recipe = 'tilefirst-opt' || $recipe = 'cinm-opt' ]]; then
+                    MLIR_OPT_COMP_CMD="$(pwd)/build/bin/$recipe" _mlir_opt
+                    return $?
+                else
+                    # Show usage message
+                    _message "`just --show $recipe`"
+                fi
+                # Or complete with other commands
+                #_arguments -s -S $common '*:: :_just_commands'
             elif [[ $lastarg = *=* ]]; then
                 # Arguments contain equal would be recognised as a variable
                 _message "value"
-            elif [[ $recipe ]]; then
-                # Show usage message
-                _message "`just --show $recipe`"
-                # Or complete with other commands
-                #_arguments -s -S $common '*:: :_just_commands'
             else
                 _arguments -s -S $common '*:: :_just_commands'
+                return $?
             fi
         ;;
     esac
 
-    return ret
+    return 0
 
 }
 
