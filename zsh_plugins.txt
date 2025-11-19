@@ -64,7 +64,7 @@ ael-code/zsh-colored-man-pages
 #
 ###
 $ZDOTDIR/completions/setup.zsh
-$ZDOTDIR/custom/plugins/mlir
+$ZDOTDIR/custom/plugins/mlir kind:defer
 
 ### Local Plugins with Variables
 #
@@ -101,7 +101,7 @@ $ZDOTDIR/custom/plugins/mlir
 ###
 
 # Use kind:fpath for prompts you want available to promptinit.
-romkatv/powerlevel10k kind:fpath
+# romkatv/powerlevel10k kind:fpath
 
 # Or, just load a prompt plugin the normal way.
 sindresorhus/pure

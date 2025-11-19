@@ -6,6 +6,11 @@
 # Zsh options.
 setopt extended_glob
 
+if [[ -n "$ZSH_DEBUGRC" ]]; then
+  zmodload zsh/zprof
+fi
+
+
 # Autoload functions you might want to use with antidote.
 ZFUNCDIR=${ZFUNCDIR:-$ZDOTDIR/functions}
 fpath=($ZFUNCDIR $fpath)
@@ -62,5 +67,14 @@ else
 fi
 unset __conda_setup
 # <<< conda initialize <<<
+}
+
+
+if [[ -n "$ZSH_DEBUGRC" ]]; then
+  zprof
+fi
+
+function profilerc {
+   time ZSH_DEBUGRC=1 zsh -i -c exit
 }
 
