@@ -32,6 +32,7 @@ source ${ZDOTDIR:-~}/.antidote/antidote.zsh
 ZSH="$HOME"/.cache/antidote/ohmyzsh/ohmyzsh
 # https://github.com/ohmyzsh/ohmyzsh/wiki/FAQ#completions-are-not-loaded-when-using-a-plugin-manager
 ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh"
+export ZSH_CUSTOM=$ZDOTDIR/custom
 mkdir -p "$ZSH_CACHE_DIR/completions"
 fpath=("$ZSH_CACHE_DIR/completions" $fpath)
 
@@ -69,6 +70,8 @@ unset __conda_setup
 # <<< conda initialize <<<
 }
 
+# To customize prompt, run `p10k configure` or edit ~/.config/zsh/.p10k.zsh.
+[[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
 
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof
@@ -77,4 +80,6 @@ fi
 function profilerc {
    time ZSH_DEBUGRC=1 zsh -i -c exit
 }
+
+
 

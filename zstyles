@@ -23,7 +23,10 @@ zstyle ':omz:plugins:ssh-agent' lazy 'no'
 zstyle ':omz:plugins:keychain' agents 'ssh'
 zstyle ':omz:plugins:keychain' options '--quiet'
 
-zstyle ':plugins:mlir:wrapper' enabled 'yes'
-zstyle ':plugins:mlir:wrapper' colorized_output 'yes'
+zstyle ':plugins:mlir:pygments' enabled 'yes'
+zstyle ':plugins:mlir:pygments' lexer ''
+zstyle ':plugins:mlir:pygments' stylesheet github-dark
 zstyle ':plugins:mlir' mlir_opt_programs mlir-opt tilefirst-opt cinm-opt 
+
+# zstyle ':completion::complete:tilefirst-opt:values:' insert-unambiguous no
 

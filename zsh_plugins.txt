@@ -101,10 +101,10 @@ $ZDOTDIR/custom/plugins/mlir kind:defer
 ###
 
 # Use kind:fpath for prompts you want available to promptinit.
-# romkatv/powerlevel10k kind:fpath
+romkatv/powerlevel10k # kind:fpath
 
 # Or, just load a prompt plugin the normal way.
-sindresorhus/pure
+# sindresorhus/pure
 
 
 ### Utilities
