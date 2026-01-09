@@ -26,7 +26,7 @@ zstyle ':omz:plugins:keychain' options '--quiet'
 zstyle ':plugins:mlir:pygments' enabled 'yes'
 zstyle ':plugins:mlir:pygments' lexer ''
 zstyle ':plugins:mlir:pygments' stylesheet github-dark
-zstyle ':plugins:mlir' mlir_opt_programs mlir-opt tilefirst-opt cinm-opt 
+zstyle ':plugins:mlir' mlir_opt_programs mlir-opt tilefirst-opt cinm-opt bfc-opt
 
 # zstyle ':completion::complete:tilefirst-opt:values:' insert-unambiguous no
 

@@ -1,10 +1,32 @@
 #!/bin/zsh
 
-path+=("$HOME/.cargo/bin")
-path+=("$HOME/Git/emsdk" "$HOME/Git/emsdk/upstream/emscripten")
-path+=("$HOME/Documents/CCC/"{tilefirst-mlir,cinm-mlir}"/build/bin")
+path+=("/lib/llvm-20/bin")
+path+=("$HOME/.cache/scalacli/local-repo/bin/scala-cli")
+path+=("$HOME/eti-bfc/bin")
 
-# Add completions for those
-zstyle ':plugins:mlir' mlir_opt_programs mlir-opt tilefirst-opt cinm-opt
+zstyle ':plugins:mlir' mlir_opt_programs mlir-opt
 
-export ZEIT_DB="$XDG_CONFIG_HOME/zeit.db"
+source "$HOME/venv/bin/activate" 
+
+function pygmentize_c() {
+  if [ -t 1 ] && command -v pygmentize &> /dev/null ; then
+    local stylesheet
+    zstyle -s ':plugins:mlir:pygments' stylesheet stylesheet
+
+    pygmentize -l "c" -x ${stylesheet:+-O "style=$stylesheet"} /dev/stdin
+  else
+    # If we're not in a term (eg we are piping to another command),
+    # just passthrough.
+    cat /dev/stdin > /dev/stdout
+  fi
+}
+
+function bfc-opt() {
+  # Wrap with colors
+  if (($@[(I)-S])); then
+    command bfc-opt "$@" | pygmentize_mlir
+  else
+    command bfc-opt "$@" | pygmentize_c
+  fi
+}
+

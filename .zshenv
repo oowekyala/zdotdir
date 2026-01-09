@@ -15,8 +15,6 @@ if [[ ( "$SHLVL" -eq 1 && ! -o LOGIN ) && -s "${ZDOTDIR:-$HOME}/.zprofile" ]]; t
   source "${ZDOTDIR:-$HOME}/.zprofile"
 fi
 
-# This requires package java-openjfx-bin built with a specific version (the one that supports JavaFX 17)
-export JAVAFX_HOME=/usr/lib/jvm/java-17-openjfx/
 
 # https://www.johnhawthorn.com/2012/09/vi-escape-delays/
 KEYTIMEOUT=1
