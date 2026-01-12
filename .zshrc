@@ -43,7 +43,8 @@ export ZSH_CUSTOM=$ZDOTDIR/custom
 mkdir -p "$ZSH_CACHE_DIR/completions"
 fpath=("$ZSH_CACHE_DIR/completions" $fpath)
 
-
+# This can contain zstyles, custom paths, env vars and such.
+# Load it before loading plugins.
 [[ -e ${ZDOTDIR:-~}/local-machine-conf ]] && source ${ZDOTDIR:-~}/local-machine-conf
  
 #### NOW LOAD ANTIDOTE
