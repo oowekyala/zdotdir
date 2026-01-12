@@ -244,7 +244,8 @@ gradle/gradle-completion kind:defer
 
 # Override aliases with mine
 $ZDOTDIR/aliases
-$ZDOTDIR/custom/paths.zsh
+# This is replaced by local-machine-conf (note it is sourced first, before all plugins)
+# $ZDOTDIR/custom/paths.zsh
 
 
 # These popular core plugins should be loaded at the end
