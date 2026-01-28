@@ -2,7 +2,7 @@
 
 path+=("/lib/llvm-20/bin")
 path+=("$HOME/.cache/scalacli/local-repo/bin/scala-cli")
-path+=("$HOME/eti-bfc/bin")
+path+=("$HOME/tasks/eti-bfc/bin")
 path+=("$HOME/bin")
 
 zstyle ':plugins:mlir' mlir_opt_programs mlir-opt
