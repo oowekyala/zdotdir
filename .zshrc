@@ -81,6 +81,12 @@ unset __conda_setup
 # To customize prompt, run `p10k configure` or edit ~/.config/zsh/.p10k.zsh.
 [[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
 
+if [ -n "$SSH_CONNECTION" ]; then
+    # fix for signing commits within SSH session
+    export GPG_TTY=$(tty)               # tell GPG which terminal to use
+    export SSH_AUTH_SOCK=$HOME/.gnupg/S.gpg-agent.ssh   # forward the agent
+fi
+
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof
 fi
