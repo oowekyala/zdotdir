@@ -3,23 +3,17 @@
 # .aliases - Set whatever shell aliases you want.
 #
 
-# single character aliases - be sparing!
-alias _=sudo
-alias l=ls
-alias g=git
-
 # mask built-ins with better defaults
 alias vi=vim
+alias hx=helix
 
 # more ways to ls
-alias ldot='ls -ld .*'
 alias lla='ls -lah'
 alias lia='ls -liah'
 alias lsl='ls -lh'
 alias ll='ls -lh'
 
 # fix common typos
-alias quit='exit'
 alias cd..='cd ..'
 
 # tar
@@ -37,8 +31,6 @@ alias urlencode='python3 -c "import sys, urllib.parse as ul; \
     print (ul.quote_plus(sys.argv[1]))"'
 
 # misc
-alias please=sudo
-alias fucking=sudo
 alias zshrc='${EDITOR:-vi} "${ZDOTDIR:-$HOME}"/.zshrc'
 alias zbench='for i in {1..10}; do /usr/bin/time zsh -lic exit; done'
 alias zdot='cd ${ZDOTDIR:-~}'

@@ -29,4 +29,6 @@ zstyle ':plugins:mlir:pygments' stylesheet github-dark
 zstyle ':plugins:mlir' mlir_opt_programs mlir-opt tilefirst-opt cinm-opt 
 
 # zstyle ':completion::complete:tilefirst-opt:values:' insert-unambiguous no
+#
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#505050"
 

@@ -20,3 +20,4 @@ export JAVAFX_HOME=/usr/lib/jvm/java-17-openjfx/
 
 # https://www.johnhawthorn.com/2012/09/vi-escape-delays/
 KEYTIMEOUT=1
+
