@@ -1,0 +1,4 @@
+_just_tilefirst_opt() {
+    export MLIR_OPT_COMP_CMD="$(pwd)/build/bin/tilefirst-opt"
+    _mlir_opt
+}
