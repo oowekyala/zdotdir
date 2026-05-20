@@ -8,6 +8,9 @@ alias vi=vim
 alias hx=helix
 
 # more ways to ls
+if command -v eza &> /dev/null; then
+    alias ls='eza --icons=auto'
+fi
 alias lla='ls -lah'
 alias lia='ls -liah'
 alias lsl='ls -lh'
