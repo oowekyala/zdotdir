@@ -57,6 +57,7 @@ agkozak/zsh-z
 sha1n/path-ethic
 ael-code/zsh-colored-man-pages
 nix-community/nix-zsh-completions
+jeffreytse/zsh-vi-mode
 
 ### Local Plugins
 #
