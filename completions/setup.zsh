@@ -3,3 +3,5 @@
 
 autoload -Uz _just
 compdef _just just
+autoload -Uz _exp	
+compdef _exp exp

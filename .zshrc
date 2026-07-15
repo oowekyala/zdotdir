@@ -84,7 +84,7 @@ unset __conda_setup
 if [ -n "$SSH_CONNECTION" ]; then
     # fix for signing commits within SSH session
     export GPG_TTY=$(tty)               # tell GPG which terminal to use
-    export SSH_AUTH_SOCK=$HOME/.gnupg/S.gpg-agent.ssh   # forward the agent
+    export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh   # forward the agent
 fi
 
 if [[ -n "$ZSH_DEBUGRC" ]]; then
@@ -97,3 +97,5 @@ function profilerc {
 
 
 
+
+source /home/clement.fournier/.config/broot/launcher/bash/br

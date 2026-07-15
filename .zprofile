@@ -15,8 +15,8 @@ fi
 # Editors
 #
 
-export EDITOR="nvim"
-export VISUAL="${VISUAL:-nvim}"
+export EDITOR="vim"
+export VISUAL="${VISUAL:-vim}"
 export PAGER="${PAGER:-less}"
 
 # Make man pages colored
