@@ -1,0 +1,4 @@
+_just_cinm_opt() {
+    export MLIR_OPT_COMP_CMD="$(pwd)/build/bin/cinm-opt"
+    _mlir_opt
+}

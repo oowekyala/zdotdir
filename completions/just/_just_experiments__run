@@ -1,0 +1,29 @@
+_just_experiments__run() {
+    # words[1]=run, words[2]=experiment-name, words[3]=ARGS (single escaped word)
+    # CURRENT is adjusted by _just to be relative to words[1]
+
+    if (( CURRENT == 2 )); then
+        local -a exps
+        exps=( experiments/*.mlir(N:r:t) )
+        compadd -a exps
+        return
+    fi
+
+    # Locate mlir_opt_comp_helper.py via _mlir_opt in fpath — no need to load _mlir_opt.
+    local mlir_src _dir
+    for _dir in $fpath; do
+        [[ -f "$_dir/_mlir_opt" ]] && { mlir_src="$_dir/_mlir_opt"; break }
+    done
+    [[ -z $mlir_src ]] && return 1
+    local helper="${mlir_src:h}/py/mlir_opt_comp_helper.py"
+    [[ -x $helper ]] || return 1
+
+    local output
+    output=$(python "$helper" --cmd "$(pwd)/build/bin/cinm-opt" \
+        list-pass-options -- "--upmem-infer-accelerator" 2>/dev/null) || return 1
+    [[ -z $output ]] && return 1
+
+    local -a specs
+    specs=(${(0)output})
+    _values -s ' ' "pass options for --upmem-infer-accelerator" "${specs[@]}"
+}

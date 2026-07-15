@@ -1,0 +1,14 @@
+# For cinm-mlir/experiments
+_just_experiments__view() {
+    # words[1]=view, words[2]=experiment-name (A/B)
+    # CURRENT is adjusted by _just to be relative to words[1]
+
+    if (( CURRENT == 2 )); then
+        local -a raw exps
+        raw=( experiments/data/*/*/pool.csv(N) )
+        # Extract "A/B" from "experiments/data/A/B/pool.csv"
+        exps=( ${(u)${${raw[@]#experiments/data/}%/pool.csv}} )
+        compadd -a exps
+        return
+    fi
+}
