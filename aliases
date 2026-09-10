@@ -5,7 +5,7 @@
 
 # mask built-ins with better defaults
 alias vi=vim
-alias hx=helix
+alias helix=hx
 
 # more ways to ls
 if command -v eza &> /dev/null; then
