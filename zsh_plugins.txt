@@ -58,6 +58,7 @@ sha1n/path-ethic
 ael-code/zsh-colored-man-pages
 nix-community/nix-zsh-completions
 jeffreytse/zsh-vi-mode
+ohmyzsh/ohmyzsh path:plugins/direnv
 
 ### Local Plugins
 #
