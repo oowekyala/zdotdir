@@ -13,3 +13,6 @@ zsh_plugins.zsh
 *.zwc.old
 ~*
 .vscode
+
+# Generated per host by home-manager (hosts/<host>.nix)
+local-machine-conf*

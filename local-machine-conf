@@ -1,9 +1,0 @@
-#!/bin/zsh
-
-path=("$HOME/.local/bin" $path)
-
-export CONDA_HOME="$HOME/miniconda3"
-
-# Add completions for those
-zstyle ':plugins:mlir' mlir_opt_programs mlir-opt cinm-opt
-
