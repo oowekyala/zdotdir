@@ -47,7 +47,13 @@ fpath=("$ZSH_CACHE_DIR/completions" $fpath)
 # This can contain zstyles, custom paths, env vars and such.
 # Load it before loading plugins.
 [[ -e ${ZDOTDIR:-~}/local-machine-conf ]] && source ${ZDOTDIR:-~}/local-machine-conf
- 
+
+# Tools pixi installs globally -- direnv among them. Before the plugins,
+# because the oh-my-zsh direnv plugin is what installs direnv's hook and it
+# looks for the binary as it loads: put this after `antidote load` and the
+# plugin prints "direnv not found" and hooks nothing.
+[[ -d "$HOME/.pixi/bin" ]] && export PATH="$HOME/.pixi/bin:$PATH"
+
 #### NOW LOAD ANTIDOTE
 
 antidote load
@@ -110,5 +116,3 @@ function profilerc {
 
 
 [[ -r "$XDG_CONFIG_HOME/broot/launcher/bash/br" ]] && source "$XDG_CONFIG_HOME/broot/launcher/bash/br"
-
-[[ -d "$HOME/.pixi/bin" ]] && export PATH="$HOME/.pixi/bin:$PATH"
