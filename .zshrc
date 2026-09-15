@@ -63,7 +63,15 @@ export SDKMAN_DIR="$HOME/.sdkman"
 
 
 function init_conda() {
-[ -d ${CONDA_HOME:?CONDA_HOME not set} ] 
+# CONDA_HOME is found in .zshenv; a machine that keeps conda somewhere unusual
+# can name it in local-machine-conf. Returning here rather than falling into
+# the block below means a machine without conda gets one line saying so,
+# instead of the block's own fallback quietly putting a nonexistent directory
+# on PATH.
+if [[ -z $CONDA_HOME || ! -d $CONDA_HOME ]]; then
+  print -u2 "init_conda: no conda install found${CONDA_HOME:+ at $CONDA_HOME}"
+  return 1
+fi
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
@@ -101,12 +109,6 @@ function profilerc {
 
 
 
-source /home/clement.fournier/.config/broot/launcher/bash/br
+[[ -r "$XDG_CONFIG_HOME/broot/launcher/bash/br" ]] && source "$XDG_CONFIG_HOME/broot/launcher/bash/br"
 
-export PATH="/home/clement.fournier/.pixi/bin:$PATH"
-
-# direnv: activates a project's environment on entering its directory, from
-# the .envrc there. This is what puts the right pixi environment -- and so the
-# right python, doit and cinm-opt -- on PATH per repository, which
-# local-machine-conf used to do with fixed path entries.
-eval "$(direnv hook zsh)"
+[[ -d "$HOME/.pixi/bin" ]] && export PATH="$HOME/.pixi/bin:$PATH"

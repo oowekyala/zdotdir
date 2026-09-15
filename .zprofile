@@ -15,8 +15,14 @@ fi
 # Editors
 #
 
-export EDITOR="vim"
-export VISUAL="${VISUAL:-vim}"
+# nvim where a machine has it, vim otherwise. This file is shared between
+# machines and not every one of them has neovim installed.
+if (( $+commands[nvim] )); then
+  export EDITOR="${EDITOR:-nvim}"
+else
+  export EDITOR="${EDITOR:-vim}"
+fi
+export VISUAL="${VISUAL:-$EDITOR}"
 export PAGER="${PAGER:-less}"
 
 # Make man pages colored

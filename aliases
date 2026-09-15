@@ -39,7 +39,8 @@ alias zbench='for i in {1..10}; do /usr/bin/time zsh -lic exit; done'
 alias zdot='cd ${ZDOTDIR:-~}'
 alias duh='du -h'
 alias vernicht='kill -9'
-#alias vim=nvim
+# Only where there is an nvim to alias to; not every machine has one.
+(( $+commands[nvim] )) && alias vim=nvim
 
 
 # git
