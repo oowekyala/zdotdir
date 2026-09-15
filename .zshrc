@@ -43,6 +43,7 @@ export ZSH_CUSTOM=$ZDOTDIR/custom
 mkdir -p "$ZSH_CACHE_DIR/completions"
 fpath=("$ZSH_CACHE_DIR/completions" $fpath)
 
+
 # This can contain zstyles, custom paths, env vars and such.
 # Load it before loading plugins.
 [[ -e ${ZDOTDIR:-~}/local-machine-conf ]] && source ${ZDOTDIR:-~}/local-machine-conf
@@ -101,3 +102,11 @@ function profilerc {
 
 
 source /home/clement.fournier/.config/broot/launcher/bash/br
+
+export PATH="/home/clement.fournier/.pixi/bin:$PATH"
+
+# direnv: activates a project's environment on entering its directory, from
+# the .envrc there. This is what puts the right pixi environment -- and so the
+# right python, doit and cinm-opt -- on PATH per repository, which
+# local-machine-conf used to do with fixed path entries.
+eval "$(direnv hook zsh)"

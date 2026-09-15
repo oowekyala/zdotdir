@@ -1,27 +1,9 @@
 #!/bin/zsh
 
-path+=("$HOME/.cargo/bin")
 path=("$HOME/.local/bin" $path)
-path+=("$HOME/Git/emsdk" "$HOME/Git/emsdk/upstream/emscripten")
-path+=("$HOME/Work/MLIR/"{tilefirst-mlir,cinm-mlir}"/build/bin")
-path+=("$HOME/Work/MLIR/cinm-mlir/third-party/llvm/build/bin")
 
-
-source /opt/upmem/upmem-2025.1.0-Linux-x86_64/upmem_env.sh
-
-path+=("$HOME/Work/cinm-mlir/build/bin")
-# Override old LLVM binaries (from upmem sdk) with custom built ones
-path+=("$HOME/Work/cinm-mlir/third-party/llvm/build/bin")
-
-source "$HOME/Work/cinm-mlir/third-party/.venv/bin/activate"
-
+export CONDA_HOME="$HOME/miniconda3"
 
 # Add completions for those
 zstyle ':plugins:mlir' mlir_opt_programs mlir-opt cinm-opt
-
-export ZEIT_DB="$XDG_CONFIG_HOME/zeit.db"
-
-# https://wiki.archlinux.org/title/Nix
-# Desktop integration for Nix
-export XDG_DATA_DIRS=$HOME/.nix-profile/share:$XDG_DATA_DIRS
 
