@@ -239,18 +239,8 @@ zdharma-continuum/fast-syntax-highlighting kind:defer
 gradle/gradle-completion kind:defer
 
 
-### Final Plugins
-#
-# Remember plugin order matters! Put plugins that need run last at the bottom of your
-# .zsh_plugins.txt file.
-#
-###
-
 # Override aliases with mine
 $ZDOTDIR/aliases
-# This is replaced by local-machine-conf (note it is sourced first, before all plugins)
-# $ZDOTDIR/custom/paths.zsh
-
 
 # These popular core plugins should be loaded at the end
 zsh-users/zsh-autosuggestions

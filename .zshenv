@@ -31,11 +31,9 @@ if [[ -z $CONDA_HOME ]]; then
   unset _conda_home
 fi
 
-# You can use .zprofile to set environment vars for non-login, non-interactive shells.
-if [[ ( "$SHLVL" -eq 1 && ! -o LOGIN ) && -s "${ZDOTDIR:-$HOME}/.zprofile" ]]; then
-  source "${ZDOTDIR:-$HOME}/.zprofile"
-fi
-
 
 # https://www.johnhawthorn.com/2012/09/vi-escape-delays/
 KEYTIMEOUT=1
+
+# Ensure path arrays do not contain duplicates.
+typeset -gU path fpath

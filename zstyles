@@ -15,13 +15,6 @@ zstyle ':antidote:bundle:*' zcompile 'yes'
 zstyle ':antidote:bundle' use-friendly-names 'yes'
 zstyle ':antidote:static' zcompile 'yes'
 
-# Lazy loading requires variable AddKeysToAgent in ~/.ssh/config
-# to have identities added only on first request
-zstyle ':omz:plugins:ssh-agent' lazy 'no'
-#zstyle ':omz:plugins:ssh-agent' lifetime '12h'
-
-zstyle ':omz:plugins:keychain' agents 'ssh'
-zstyle ':omz:plugins:keychain' options '--quiet'
 
 zstyle ':plugins:mlir:pygments' enabled 'yes'
 zstyle ':plugins:mlir:pygments' lexer ''

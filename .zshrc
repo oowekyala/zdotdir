@@ -33,13 +33,12 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 # set omz variables
-# This here is inlined for a small startup time improvement
+# This command is inlined for a small startup time improvement (avoids launching a subshell to run `antidote`)
 #ZSH=$(antidote path ohmyzsh/ohmyzsh)
 ZSH="$HOME"/.cache/antidote/ohmyzsh/ohmyzsh
 # https://github.com/ohmyzsh/ohmyzsh/wiki/FAQ#completions-are-not-loaded-when-using-a-plugin-manager
 ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/oh-my-zsh"
-export ZSH_CUSTOM=$ZDOTDIR/custom
-mkdir -p "$ZSH_CACHE_DIR/completions"
+[[ -d "$ZSH_CACHE_DIR/completions" ]] || mkdir -p "$ZSH_CACHE_DIR/completions"
 fpath=("$ZSH_CACHE_DIR/completions" $fpath)
 
 
@@ -59,8 +58,9 @@ fpath=("$ZSH_CACHE_DIR/completions" $fpath)
 
 antidote load
 
-# Finally
-export GPG_TTY=$(tty)
+#### FINALLY
+
+export GPG_TTY=$TTY
 
 # To customize prompt, run `p10k configure` or edit ~/.config/zsh/.p10k.zsh.
 [[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
@@ -72,7 +72,3 @@ fi
 function profilerc {
    time ZSH_DEBUGRC=1 zsh -i -c exit
 }
-
-
-
-
