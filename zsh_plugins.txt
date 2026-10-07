@@ -67,6 +67,7 @@ jeffreytse/zsh-vi-mode
 ###
 $ZDOTDIR/completions/setup.zsh
 $ZDOTDIR/custom/plugins/mlir kind:defer
+$ZDOTDIR/custom/plugins/sdkman kind:defer
 
 ### Local Plugins with Variables
 #

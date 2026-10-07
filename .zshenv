@@ -9,6 +9,9 @@
 export XDG_CONFIG_HOME=${XDG_CONFIG_HOME:-$HOME/.config}
 export ZDOTDIR=${ZDOTDIR:-$XDG_CONFIG_HOME/zsh}
 export ZSH_CUSTOM=$ZDOTDIR/custom
+# Here rather than in .zshrc so non-interactive shells (scripts, `ssh host cmd`)
+# use the same keyring and agent. Graphical sessions get it from home-manager.
+export GNUPGHOME=${GNUPGHOME:-$XDG_CONFIG_HOME/gnupg}
 
 # Where this machine's conda lives, for init_conda in .zshrc. Found rather
 # than named, since the install goes in a different place on each machine and

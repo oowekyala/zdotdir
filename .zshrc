@@ -60,16 +60,7 @@ fpath=("$ZSH_CACHE_DIR/completions" $fpath)
 antidote load
 
 # Finally
-export EDITOR="${EDITOR:-nvim}"
 export GPG_TTY=$(tty)
-export GNUPGHOME="$XDG_CONFIG_HOME"/gnupg
-
-
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && zsh-defer source "$SDKMAN_DIR/bin/sdkman-init.sh"
-
-
 
 # To customize prompt, run `p10k configure` or edit ~/.config/zsh/.p10k.zsh.
 [[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
@@ -85,4 +76,3 @@ function profilerc {
 
 
 
-[[ -r "$XDG_CONFIG_HOME/broot/launcher/bash/br" ]] && source "$XDG_CONFIG_HOME/broot/launcher/bash/br"
