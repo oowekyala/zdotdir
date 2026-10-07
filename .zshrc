@@ -10,7 +10,6 @@ if [[ -n "$ZSH_DEBUGRC" ]]; then
   zmodload zsh/zprof
 fi
 
-
 # Autoload functions you might want to use with antidote.
 ZFUNCDIR=${ZFUNCDIR:-$ZDOTDIR/functions}
 fpath=($ZFUNCDIR $fpath)
@@ -68,41 +67,9 @@ export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && zsh-defer source "$SDKMAN_DIR/bin/sdkman-init.sh"
 
 
-function init_conda() {
-# CONDA_HOME is found in .zshenv; a machine that keeps conda somewhere unusual
-# can name it in local-machine-conf. Returning here rather than falling into
-# the block below means a machine without conda gets one line saying so,
-# instead of the block's own fallback quietly putting a nonexistent directory
-# on PATH.
-if [[ -z $CONDA_HOME || ! -d $CONDA_HOME ]]; then
-  print -u2 "init_conda: no conda install found${CONDA_HOME:+ at $CONDA_HOME}"
-  return 1
-fi
-
-# >>> conda initialize >>>
-# !! Contents within this block are managed by 'conda init' !!
-__conda_setup="$("$CONDA_HOME/bin/conda" 'shell.zsh' 'hook' 2> /dev/null)"
-if [ $? -eq 0 ]; then
-    eval "$__conda_setup"
-else
-    if [ -f "$CONDA_HOME/etc/profile.d/conda.sh" ]; then
-        . "$CONDA_HOME/etc/profile.d/conda.sh"
-    else
-        export PATH="$CONDA_HOME/bin:$PATH"
-    fi
-fi
-unset __conda_setup
-# <<< conda initialize <<<
-}
 
 # To customize prompt, run `p10k configure` or edit ~/.config/zsh/.p10k.zsh.
 [[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
-
-if [ -n "$SSH_CONNECTION" ]; then
-    # fix for signing commits within SSH session
-    export GPG_TTY=$(tty)               # tell GPG which terminal to use
-    export SSH_AUTH_SOCK=$XDG_RUNTIME_DIR/gnupg/S.gpg-agent.ssh   # forward the agent
-fi
 
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof
