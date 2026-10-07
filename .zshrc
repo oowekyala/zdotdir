@@ -51,7 +51,9 @@ fpath=("$ZSH_CACHE_DIR/completions" $fpath)
 # because the oh-my-zsh direnv plugin is what installs direnv's hook and it
 # looks for the binary as it loads: put this after `antidote load` and the
 # plugin prints "direnv not found" and hooks nothing.
-[[ -d "$HOME/.pixi/bin" ]] && export PATH="$HOME/.pixi/bin:$PATH"
+[[ -d "$HOME/.pixi/bin" ]] && path+=("$HOME/.pixi/bin")
+# Same for cargo.
+[[ -d "$HOME/.cargo/bin" ]] && path+=("$HOME/.cargo/bin")
 
 #### NOW LOAD ANTIDOTE
 
@@ -61,6 +63,7 @@ antidote load
 export EDITOR="${EDITOR:-nvim}"
 export GPG_TTY=$(tty)
 export GNUPGHOME="$XDG_CONFIG_HOME"/gnupg
+
 
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
