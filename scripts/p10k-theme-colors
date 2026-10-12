@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+"""
+Point a .p10k.zsh at the terminal's 16 theme colors.
+
+The p10k wizard writes colors as xterm-256 indexes (31, 39, 76, ...). Indexes
+16-255 are a fixed color cube in every terminal, so a prompt using them ignores
+the terminal theme. This replaces each with the ANSI color (0-15) nearest in
+OKLCH hue: bright when the original is light, gray when it is unsaturated.
+Only color settings (POWERLEVEL9K_*_{FOREGROUND,BACKGROUND,COLOR}=N) and inline
+%NF/%NK escapes change. Running it again changes nothing.
+
+Run after `p10k configure`:  p10k-theme-colors [path/to/.p10k.zsh]
+"""
+
+import math
+import os
+import re
+import sys
+from pathlib import Path
+
+# Where p10k's own distinctions read better than the nearest hue: the path is
+# blue with bright-blue anchors, and its shortened parts are dim.
+OVERRIDES = {31: 4, 39: 12, 103: 8}
+
+ANSI_HUES = {1: 29, 3: 75, 2: 145, 6: 200, 4: 260, 5: 330}  # index: OKLCH hue
+GRAY_CHROMA = 0.04
+BRIGHT_LIGHTNESS = 0.72
+
+
+def xterm_rgb(i: int) -> tuple[int, int, int]:
+    if i >= 232:
+        v = 8 + (i - 232) * 10
+        return v, v, v
+    i -= 16
+    steps = (0, 95, 135, 175, 215, 255)
+    return steps[i // 36], steps[(i // 6) % 6], steps[i % 6]
+
+
+def oklch(rgb: tuple[int, int, int]) -> tuple[float, float, float]:
+    def linear(c: float) -> float:
+        c /= 255
+        return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+    r, g, b = (linear(c) for c in rgb)
+    l = math.cbrt(0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b)
+    m = math.cbrt(0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b)
+    s = math.cbrt(0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b)
+    L = 0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s
+    a = 1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s
+    bb = 0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s
+    return L, math.hypot(a, bb), math.degrees(math.atan2(bb, a)) % 360
+
+
+def ansi(i: int) -> int:
+    if i < 16:
+        return i
+    if i in OVERRIDES:
+        return OVERRIDES[i]
+    L, C, H = oklch(xterm_rgb(i))
+    if C < GRAY_CHROMA:
+        return 7 if L > 0.75 else 8
+    nearest = min(ANSI_HUES, key=lambda k: abs((H - ANSI_HUES[k] + 180) % 360 - 180))
+    return nearest + 8 if L > BRIGHT_LIGHTNESS else nearest
+
+
+def main() -> None:
+    zdotdir = Path(os.environ.get("ZDOTDIR", Path.home()))
+    path = Path(sys.argv[1]) if len(sys.argv) > 1 else zdotdir / ".p10k.zsh"
+    text = path.read_text()
+    assign = re.compile(r"(POWERLEVEL9K_[A-Za-z0-9_{},]*(?:FOREGROUND|BACKGROUND|COLOR)=)(\d+)\b")
+    inline = re.compile(r"%(\d+)([FK])")
+    text, n1 = assign.subn(lambda m: f"{m.group(1)}{ansi(int(m.group(2)))}", text)
+    text, n2 = inline.subn(lambda m: f"%{ansi(int(m.group(1)))}{m.group(2)}", text)
+    path.write_text(text)
+    print(f"{path}: {n1} color settings and {n2} inline colors on the 16 theme colors")
+
+
+if __name__ == "__main__":
+    main()

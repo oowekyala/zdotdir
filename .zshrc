@@ -65,6 +65,19 @@ export GPG_TTY=$TTY
 # To customize prompt, run `p10k configure` or edit ~/.config/zsh/.p10k.zsh.
 [[ ! -f ~/.config/zsh/.p10k.zsh ]] || source ~/.config/zsh/.p10k.zsh
 
+# The p10k wizard writes xterm-256 colors, which ignore the terminal theme;
+# scripts/p10k-theme-colors converts them. Warns once, at the first prompt
+# (instant prompt objects to output during startup), if they're back.
+_p10k_theme_colors_check() {
+  add-zsh-hook -d precmd _p10k_theme_colors_check
+  if grep -qE 'POWERLEVEL9K_[A-Za-z0-9_{},]*(FOREGROUND|BACKGROUND|COLOR)=(1[6-9]|[2-9][0-9]|[12][0-9]{2})\b|%(1[6-9]|[2-9][0-9]|[12][0-9]{2})[FK]' \
+      ~/.config/zsh/.p10k.zsh 2>/dev/null; then
+    print -P "%F{3}.p10k.zsh uses colors outside the terminal theme: run ${ZDOTDIR:-~}/scripts/p10k-theme-colors%f"
+  fi
+}
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd _p10k_theme_colors_check
+
 if [[ -n "$ZSH_DEBUGRC" ]]; then
   zprof
 fi
