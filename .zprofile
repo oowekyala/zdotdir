@@ -16,13 +16,15 @@ fi
 #
 
 # nvim where a machine has it, vim otherwise. This file is shared between
-# machines and not every one of them has neovim installed.
+# machines and not every one of them has neovim installed. Set unconditionally:
+# /etc/profile runs first and may already set a distribution default (Fedora's
+# nano-default-editor sets EDITOR=nano).
 if (( $+commands[nvim] )); then
-  export EDITOR="${EDITOR:-nvim}"
+  export EDITOR=nvim
 else
-  export EDITOR="${EDITOR:-vim}"
+  export EDITOR=vim
 fi
-export VISUAL="${VISUAL:-$EDITOR}"
+export VISUAL="$EDITOR"
 export PAGER="${PAGER:-less}"
 export MANPAGER='less -s -M +Gg'
 
