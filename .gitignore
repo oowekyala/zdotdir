@@ -14,5 +14,5 @@ zsh_plugins.zsh
 ~*
 .vscode
 
-# Generated per host by home-manager (hosts/<host>.nix)
+# Generated per host by home-manager (nix-config: modules/home/cli/zsh.nix, set in hosts/<host>/home.nix)
 local-machine-conf*
